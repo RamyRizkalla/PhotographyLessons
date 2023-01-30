@@ -8,34 +8,33 @@
 import XCTest
 
 final class LessonsUITests: XCTestCase {
+  private var app = XCUIApplication()
 
-    override func setUpWithError() throws {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
+  override func setUpWithError() throws {
+    continueAfterFailure = false
+    app.launchArguments = [ProcessInfo.Argument]([.uitest]).map(\.rawValue)
+    app.launch()
+  }
 
-        // In UI tests it is usually best to stop immediately when a failure occurs.
-        continueAfterFailure = false
+  func testFirstRowInList() throws {
+    let expectedFirstRowTitle = "Setting The Correct Exposure For Your Photos"
 
-        // In UI tests it’s important to set the initial state - such as interface orientation - required for your tests before they run. The setUp method is a good place to do this.
-    }
+    XCTAssertTrue(LessonsListPage.table.waitForExistence(timeout: 3))
+    XCTAssertTrue(LessonsListPage.cells.firstMatch.waitForExistence(timeout: 5))
+    XCTAssertEqual(LessonsListPage.title(at: 0).label, expectedFirstRowTitle)
+  }
 
-    override func tearDownWithError() throws {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
-    }
+  func testNavigationToLessonDetails() throws {
+    XCTAssertTrue(LessonsListPage.cells.firstMatch.waitForExistence(timeout: 5))
+    LessonsListPage.pressOnCell(at: 0)
+    XCTAssertTrue(LessonDetailsPage.title.waitForExistence(timeout: 3.0))
 
-    func testExample() throws {
-        // UI tests must launch the application that they test.
-        let app = XCUIApplication()
-        app.launch()
+    let expectedTitle = "Setting The Correct Exposure For Your Photos"
+    let expectedDescription = """
+    Setting the correct exposure is essential for capturing stunning photos with amazing detail. But did you know that exposure can also be used as a creative tool to take truly unique images? Watch this video from our breakthrough iPhone Photo Academy course, and discover the secrets of setting the perfect exposure for your iPhone photos.
+    """
 
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-    }
-
-    func testLaunchPerformance() throws {
-        if #available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 7.0, *) {
-            // This measures how long it takes to launch your application.
-            measure(metrics: [XCTApplicationLaunchMetric()]) {
-                XCUIApplication().launch()
-            }
-        }
-    }
+    XCTAssertEqual(LessonDetailsPage.title.label, expectedTitle)
+    XCTAssertEqual(LessonDetailsPage.description.label, expectedDescription)
+  }
 }
